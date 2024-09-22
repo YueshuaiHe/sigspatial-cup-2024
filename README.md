@@ -4,12 +4,22 @@ The code for the 13th SIGSPATIAL Cup competition (GISCUP 2024) [https://sigspati
 
 The goal is to optimize the placement of EV charging stations. Our UMN-UL team proposes an approach that analyzes traffic demands and leverages point-of-interest contextual embeddings using a language model to predict EV registration rates per census block. 
 
-## 1.
+## 1. Data preparation 
 
 ### Description
+We prepare related data for the following steps.
 
 ### Usage
 - Input
+  - Census block shapefile for GA
+  `./data/GA_cb_2018_13_bg_500k`
+  - Census block shapefile for NC
+  `./data/NC_cb_2018_37_bg_500k`
+  - Justice 40 shapefile for GA
+  `./data/Georgia-Justice40-map`
+  - Existing charging stations for GA
+  `./data/Existing ev charging stations.csv`
+
 
 - Code
 
@@ -37,14 +47,17 @@ We contextualize regions using one of the spatial language models, [SpaBERT](htt
   - Prediction results of EV count for each census block in Georgia
 
 
-## 3.
+## 3. Predicting EV charging demand at the census block for Georgia
 
 ### Description
+We used the OD matrix from GA DOT to estimate the EV charging demand per census block. Based on the EV registration estimated from step 2, we know how many EV trips originated from each census block. Then we proportionally assigned those EV trips according to the trip distribution from the OD matrix. Since the OD matrix is sparse, we only kept top 5 destinations with the most trips per origin. At last, the EV charging demand is the maximum of the EV registration number and the EV trips, considering the charging needs for both home and travel.  
 
 ### Usage
 - Input
+  - OD Matrix
+  `googledrive`
 
-- Code
+- Code `python ./src/charging_demand_prediction.ipynb`
 
 - Output
   - Estimated EV demand per census block in Georgia
@@ -77,10 +90,16 @@ We assign EV charging station locations based on estimated demand and a ranked l
 ## 5. Adjusting EV charging stations for disadvantaged communities
 
 ### Description
+We estimated the charging station distributions between disadvantaged communities (DACs) and non-disadvantaged communities (Non-DACs) according to the definition of Justice40. We found that the number of charging stations are (Mean/std):
+- DAC: 2.45/4.70
+- Non-DAC: 2.62/5.08
+The comparison result indicates a reasonable charging station distribution. 
 
 ### Usage
 - Input
+  - Justice 40
+  `./data/Georgia-Justice40-map`
 
-- Code
+- Code `python ./src/charging_demand_prediction.ipynb`
 
 - Output
